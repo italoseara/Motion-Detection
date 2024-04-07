@@ -72,6 +72,15 @@ public:
   PPMImage(int width, int height, int maxColor, Pixel **pixels);
 
   /**
+   * @brief Constructs a PPMImage object with the specified width, height, and maximum color value.
+   *
+   * @param width The width of the image.
+   * @param height The height of the image.
+   * @param maxColor The maximum color value of the image.
+   */
+  PPMImage(int width, int height, int maxColor);
+
+  /**
    * @brief Constructs a PPMImage object from a PPM file.
    *
    * @param path The path to the PPM file.
@@ -82,6 +91,20 @@ public:
    * @brief Destroys the PPMImage object.
    */
   ~PPMImage();
+
+  /**
+   * @brief Subtracts the pixel data of two images.
+   *
+   * Both images must have the same dimensions.
+   *
+   * @param other The image to subtract from this image.
+   */
+  PPMImage operator-(PPMImage &other);
+
+  /**
+   * @brief Normalizes the image to avoid overflow or underflow.
+   */
+  void normalize();
 
   /**
    * @brief Returns the width of the image.
@@ -105,6 +128,20 @@ public:
    * @param y The y-coordinate of the pixel.
    */
   Pixel getPixel(int x, int y);
+
+  /**
+   * @brief Sets the pixel at the specified coordinates.
+   *
+   * @param x The x-coordinate of the pixel.
+   * @param y The y-coordinate of the pixel.
+   * @param pixel The pixel to set.
+   */
+  void setPixel(int x, int y, Pixel pixel);
+
+  /**
+   * @brief Returns the pixel data of the image.
+   */
+  Pixel **getPixels();
 
   /**
    * @brief Saves the image to a PPM file.

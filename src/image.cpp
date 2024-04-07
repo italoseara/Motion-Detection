@@ -2,11 +2,7 @@
 
 Pixel::Pixel() : r(0), g(0), b(0) {}
 
-Pixel::Pixel(int r, int g, int b) : r(r), g(g), b(b)
-{
-  if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255)
-    throw invalid_argument("Error: Invalid RGB values");
-}
+Pixel::Pixel(int r, int g, int b) : r(r), g(g), b(b) {}
 
 Pixel Pixel::operator+(Pixel &other)
 {
@@ -25,6 +21,15 @@ string Pixel::tostring()
 
 PPMImage::PPMImage(int width, int height, int maxColor, Pixel **pixels)
     : width(width), height(height), maxColor(maxColor), pixels(pixels) {}
+
+PPMImage::PPMImage(int width, int height, int maxColor)
+    : width(width), height(height), maxColor(maxColor)
+{
+  // Allocate memory
+  pixels = new Pixel *[height];
+  for (int i = 0; i < height; i++)
+    pixels[i] = new Pixel[width];
+}
 
 PPMImage::PPMImage(string path)
 {
@@ -62,6 +67,79 @@ PPMImage::~PPMImage()
   delete[] pixels;
 }
 
+PPMImage PPMImage::operator-(PPMImage &other)
+{
+  if (width != other.width || height != other.height)
+    throw invalid_argument("Error: Can't subtract images of different dimentions");
+
+  // Allocate memory for the new pixels
+  Pixel **newPixels = new Pixel *[height];
+  for (int i = 0; i < height; i++)
+    newPixels[i] = new Pixel[width];
+
+  // Operates in each pixel
+  bool underflow = false;
+  for (int i = 0; i < width; i++)
+  {
+    for (int j = 0; j < height; j++)
+    {
+      // Subtract pixels
+      Pixel pixel = pixels[i][j] - other.pixels[i][j];
+      newPixels[i][j] = pixel;
+
+      // Check for underflow
+      underflow = underflow || pixel.r < 0 || pixel.g < 0 || pixel.b < 0;
+    }
+  }
+
+  PPMImage newImage(width, height, maxColor, newPixels);
+
+  // Normalize if there is underflow
+  if (underflow)
+    newImage.normalize();
+
+  return newImage;
+}
+
+void PPMImage::normalize()
+{
+  // Get the min and max values for each channel
+  int minR = __INT_MAX__, minG = __INT_MAX__, minB = __INT_MAX__;
+  int maxR = 0, maxG = 0, maxB = 0;
+
+  for (int i = 0; i < width; i++)
+  {
+    for (int j = 0; j < height; j++)
+    {
+      Pixel pixel = pixels[i][j];
+
+      // Update min and max values
+      minR = pixel.r < minR ? pixel.r : minR;
+      minG = pixel.g < minG ? pixel.g : minG;
+      minB = pixel.b < minB ? pixel.b : minB;
+
+      maxR = pixel.r > maxR ? pixel.r : maxR;
+      maxG = pixel.g > maxG ? pixel.g : maxG;
+      maxB = pixel.b > maxB ? pixel.b : maxB;
+    }
+  }
+
+  // Applies the normalization
+  for (int i = 0; i < width; i++)
+  {
+    for (int j = 0; j < height; j++)
+    {
+      Pixel pixel = pixels[i][j];
+
+      pixel.r = (pixel.r - minR) * maxColor / (maxR - minR);
+      pixel.g = (pixel.g - minG) * maxColor / (maxG - minG);
+      pixel.b = (pixel.b - minB) * maxColor / (maxB - minB);
+
+      pixels[i][j] = pixel;
+    }
+  }
+}
+
 int PPMImage::getWidth()
 {
   return width;
@@ -80,6 +158,16 @@ int PPMImage::getMaxColor()
 Pixel PPMImage::getPixel(int x, int y)
 {
   return pixels[y][x];
+}
+
+void PPMImage::setPixel(int x, int y, Pixel pixel)
+{
+  pixels[y][x] = pixel;
+}
+
+Pixel **PPMImage::getPixels()
+{
+  return pixels;
 }
 
 void PPMImage::save(string path)
