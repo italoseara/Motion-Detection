@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <random>
+
 #include "image.h"
 
 using namespace std;
@@ -9,7 +10,6 @@ PPMImage randomImage(int width, int height, int maxColor);
 
 int main(int argc, char const *argv[])
 {
-
   PPMImage image("img/lena.ppm");
   PPMImage noise = randomImage(image.getWidth(), image.getHeight(), image.getMaxColor());
 
