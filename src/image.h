@@ -74,6 +74,7 @@ public:
   /**
    * @brief Constructs a PPMImage object with the specified width, height, and maximum color value.
    *
+   *
    * @param width The width of the image.
    * @param height The height of the image.
    * @param maxColor The maximum color value of the image.
@@ -105,6 +106,13 @@ public:
    * @brief Normalizes the image to avoid overflow or underflow.
    */
   void normalize();
+
+  /**
+   * @brief Segments the image into two regions based on the specified tolerance.
+   *
+   * @param tolerance The tolerance value to use for segmentation.
+   */
+  void segment(int tolerance);
 
   /**
    * @brief Returns the width of the image.
@@ -149,6 +157,11 @@ public:
    * @param path The path to save the image to.
    */
   void save(string path);
+
+  /**
+   * @brief Clones the image.
+   */
+  PPMImage clone();
 
   /**
    * @brief Returns a string representation of the image.

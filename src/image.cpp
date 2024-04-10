@@ -78,64 +78,69 @@ PPMImage PPMImage::operator-(PPMImage &other)
     newPixels[i] = new Pixel[width];
 
   // Operates in each pixel
-  bool underflow = false;
-  for (int i = 0; i < width; i++)
+  for (int i = 0; i < height; i++)
   {
-    for (int j = 0; j < height; j++)
+    for (int j = 0; j < width; j++)
     {
       // Subtract pixels
       Pixel pixel = pixels[i][j] - other.pixels[i][j];
       newPixels[i][j] = pixel;
-
-      // Check for underflow
-      underflow = underflow || pixel.r < 0 || pixel.g < 0 || pixel.b < 0;
     }
   }
 
   PPMImage newImage(width, height, maxColor, newPixels);
-
-  // Normalize if there is underflow
-  if (underflow)
-    newImage.normalize();
-
   return newImage;
 }
 
 void PPMImage::normalize()
 {
-  // Get the min and max values for each channel
-  int minR = __INT_MAX__, minG = __INT_MAX__, minB = __INT_MAX__;
-  int maxR = 0, maxG = 0, maxB = 0;
-
-  for (int i = 0; i < width; i++)
-  {
-    for (int j = 0; j < height; j++)
-    {
-      Pixel pixel = pixels[i][j];
-
-      // Update min and max values
-      minR = pixel.r < minR ? pixel.r : minR;
-      minG = pixel.g < minG ? pixel.g : minG;
-      minB = pixel.b < minB ? pixel.b : minB;
-
-      maxR = pixel.r > maxR ? pixel.r : maxR;
-      maxG = pixel.g > maxG ? pixel.g : maxG;
-      maxB = pixel.b > maxB ? pixel.b : maxB;
-    }
-  }
-
   // Applies the normalization
-  for (int i = 0; i < width; i++)
+  for (int i = 0; i < height; i++)
   {
-    for (int j = 0; j < height; j++)
+    for (int j = 0; j < width; j++)
     {
       Pixel pixel = pixels[i][j];
 
-      pixel.r = (pixel.r - minR) * maxColor / (maxR - minR);
-      pixel.g = (pixel.g - minG) * maxColor / (maxG - minG);
-      pixel.b = (pixel.b - minB) * maxColor / (maxB - minB);
+      pixel.r += 255;
+      pixel.r /= 2;
+
+      pixel.g += 255;
+      pixel.g /= 2;
+
+      pixel.b += 255;
+      pixel.b /= 2;
 
       pixels[i][j] = pixel;
+    }
+  }
+}
+
+void PPMImage::segment(int tolerance)
+{
+  // Get the average pixel
+  Pixel avgPixel;
+  for (int i = 0; i < height; i++)
+    for (int j = 0; j < width; j++)
+      avgPixel = avgPixel + pixels[i][j];
+  avgPixel.r /= width * height;
+  avgPixel.g /= width * height;
+  avgPixel.b /= width * height;
+
+  // Segment the image
+  for (int i = 0; i < height; i++)
+  {
+    for (int j = 0; j < width; j++)
+    {
+      Pixel pixel = pixels[i][j];
+
+      // Calculate the distance between the pixel and the average pixel
+      int distance = abs(pixel.r - avgPixel.r) + abs(pixel.g - avgPixel.g) + abs(pixel.b - avgPixel.b);
+
+      // If the distance is less than the tolerance, set the pixel to black
+      if (distance < tolerance)
+        pixels[i][j] = Pixel(0, 0, 0);
+      else
+        pixels[i][j] = Pixel(255, 255, 255);
     }
   }
 }
@@ -157,12 +162,12 @@ int PPMImage::getMaxColor()
 
 Pixel PPMImage::getPixel(int x, int y)
 {
-  return pixels[y][x];
+  return pixels[x][y];
 }
 
 void PPMImage::setPixel(int x, int y, Pixel pixel)
 {
-  pixels[y][x] = pixel;
+  pixels[x][y] = pixel;
 }
 
 Pixel **PPMImage::getPixels()
@@ -175,6 +180,22 @@ void PPMImage::save(string path)
   ofstream file(path);
   file << tostring();
   file.close();
+}
+
+PPMImage PPMImage::clone()
+{
+  // Allocate memory for the new pixels
+  Pixel **newPixels = new Pixel *[height];
+  for (int i = 0; i < height; i++)
+    newPixels[i] = new Pixel[width];
+
+  // Copy the pixels
+  for (int i = 0; i < height; i++)
+    for (int j = 0; j < width; j++)
+      newPixels[i][j] = pixels[i][j];
+
+  PPMImage newImage(width, height, maxColor, newPixels);
+  return newImage;
 }
 
 string PPMImage::tostring()
