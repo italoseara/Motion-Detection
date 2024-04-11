@@ -13,7 +13,7 @@ build: src/main.cpp src/image.cpp
 	$(CC) build/main.o build/image.o -o build/main
 
 run: build
-	./build/main
+	./build/main $(ARGS)
 
 clean:
 	rm -rf build/*.o build/main

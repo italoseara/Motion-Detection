@@ -104,8 +104,10 @@ public:
 
   /**
    * @brief Normalizes the image to avoid overflow or underflow.
+   * 
+   * @param tolerance The tolerance value to use for normalization.
    */
-  void normalize();
+  void normalize(int tolerance);
 
   /**
    * @brief Segments the image into two regions based on the specified tolerance.
@@ -113,6 +115,11 @@ public:
    * @param tolerance The tolerance value to use for segmentation.
    */
   void segment(int tolerance);
+
+  /**
+   * @brief Returns the average pixel of the image.
+   */
+  Pixel getAveragePixel();
 
   /**
    * @brief Returns the width of the image.

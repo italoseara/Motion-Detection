@@ -92,14 +92,26 @@ PPMImage PPMImage::operator-(PPMImage &other)
   return newImage;
 }
 
-void PPMImage::normalize()
+void PPMImage::normalize(int tolerance)
 {
+  // Get the average pixel
+  Pixel avgPixel = getAveragePixel();
+
   // Applies the normalization
   for (int i = 0; i < height; i++)
   {
     for (int j = 0; j < width; j++)
     {
       Pixel pixel = pixels[i][j];
+
+      // Calculate the distance between the pixel and the average pixel
+      int distance = abs(pixel.r - avgPixel.r) + abs(pixel.g - avgPixel.g) + abs(pixel.b - avgPixel.b);
+
+      if (distance < tolerance)
+      {
+        pixels[i][j] = Pixel(0, 0, 0);
+        continue;
+      }
 
       pixel.r += 255;
       pixel.r /= 2;
@@ -118,13 +130,7 @@ void PPMImage::normalize()
 void PPMImage::segment(int tolerance)
 {
   // Get the average pixel
-  Pixel avgPixel;
-  for (int i = 0; i < height; i++)
-    for (int j = 0; j < width; j++)
-      avgPixel = avgPixel + pixels[i][j];
-  avgPixel.r /= width * height;
-  avgPixel.g /= width * height;
-  avgPixel.b /= width * height;
+  Pixel avgPixel = getAveragePixel();
 
   // Segment the image
   for (int i = 0; i < height; i++)
@@ -143,6 +149,21 @@ void PPMImage::segment(int tolerance)
         pixels[i][j] = Pixel(255, 255, 255);
     }
   }
+}
+
+Pixel PPMImage::getAveragePixel()
+{
+  // Calculate the average pixel
+  Pixel avgPixel;
+  for (int i = 0; i < height; i++)
+    for (int j = 0; j < width; j++)
+      avgPixel = avgPixel + pixels[i][j];
+
+  avgPixel.r /= width * height;
+  avgPixel.g /= width * height;
+  avgPixel.b /= width * height;
+
+  return avgPixel;
 }
 
 int PPMImage::getWidth()
