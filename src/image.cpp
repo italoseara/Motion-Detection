@@ -92,7 +92,7 @@ PPMImage PPMImage::operator-(PPMImage &other)
   return newImage;
 }
 
-void PPMImage::normalize(int tolerance)
+void PPMImage::normalize(int threshold)
 {
   // Get the average pixel
   Pixel avgPixel = getAveragePixel();
@@ -107,7 +107,7 @@ void PPMImage::normalize(int tolerance)
       // Calculate the distance between the pixel and the average pixel
       int distance = abs(pixel.r - avgPixel.r) + abs(pixel.g - avgPixel.g) + abs(pixel.b - avgPixel.b);
 
-      if (distance < tolerance)
+      if (distance < threshold)
       {
         pixels[i][j] = Pixel(0, 0, 0);
         continue;
@@ -127,7 +127,7 @@ void PPMImage::normalize(int tolerance)
   }
 }
 
-void PPMImage::segment(int tolerance)
+void PPMImage::segment(int threshold)
 {
   // Get the average pixel
   Pixel avgPixel = getAveragePixel();
@@ -143,7 +143,7 @@ void PPMImage::segment(int tolerance)
       int distance = abs(pixel.r - avgPixel.r) + abs(pixel.g - avgPixel.g) + abs(pixel.b - avgPixel.b);
 
       // If the distance is less than the tolerance, set the pixel to black
-      if (distance < tolerance)
+      if (distance < threshold)
         pixels[i][j] = Pixel(0, 0, 0);
       else
         pixels[i][j] = Pixel(255, 255, 255);
