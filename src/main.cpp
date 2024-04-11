@@ -28,14 +28,12 @@ int main(int argc, char const *argv[])
   PPMImage image2(image2_path);
   PPMImage result = image1 - image2;
 
-  PPMImage segmented = result.clone();
-  segmented.segment(threshold);
-
   PPMImage normalized = result.clone();
   normalized.normalize(threshold);
-
-  segmented.save("img/segmented.ppm");
   normalized.save("img/normalized.ppm");
 
+  PPMImage segmented = result.clone();
+  segmented.segment(threshold);
+  segmented.save("img/segmented.ppm");
   return 0;
 }
